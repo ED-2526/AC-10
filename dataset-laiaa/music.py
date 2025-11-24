@@ -3,6 +3,8 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.cluster import KMeans
 import plotly.graph_objects as go
+import plotly.io as pio
+pio.renderers.default = "vscode" #no enseña el plot pero si las connexiones
 
 # 1. Cargar datos
 data = pd.read_csv("Spotify-2000.csv")
