@@ -43,22 +43,32 @@ print("Forma de X_scaled:", X_scaled.shape)
 # 2. Provar K-means amb diferents valors de k (elbow + silhouette)
 # -------------------------------------------------------------------
 
+# Provem k de 2 a 12
 K_RANGE = range(2, 13)      # k = 2..12
-sse_list = []
-silhouette_list = []
+
+# Aquí guardem els resultats
+sse_list = []   # Sum of Squared Errors per a elbow
+silhouette_list = [] # Silhouette scores (qualitat dels clustering)
 
 print("\nCalculant elbow i silhouette per diferents k...\n")
 
+# Bucle principal per provar diferents valors de k
 for k in K_RANGE:
+    # Inicialitzem K-Means amb k clústers
     km = KMeans(n_clusters=k, random_state=42, n_init="auto")
+    
+    # Entrenem el model i obtenim les etiquetes (quin cluster rep cada cançó)
     labels = km.fit_predict(X_scaled)
 
+    # Cqlculem SSE = suma de distàncies fins al seu centre
     sse = km.inertia_
     sse_list.append(sse)
 
+    # Calcume Silhouette Score = mesura entre -1 i 1 (com de separats estan els clusters)
     sil = silhouette_score(X_scaled, labels)
     silhouette_list.append(sil)
 
+    # Mostrem els resultats per aquest k
     print(f"k={k}  SSE={sse:.2f}  Silhouette={sil:.4f}")
 
 
