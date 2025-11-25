@@ -76,6 +76,7 @@ for k in K_RANGE:
 # 3. Generar gràfic Elbow
 # -------------------------------------------------------------------
 
+# Gràfic Elbow: k vs SSE
 plt.figure(figsize=(8, 5))
 plt.plot(list(K_RANGE), sse_list, marker="o")
 plt.xlabel("Nombre de clústers (k)")
@@ -83,7 +84,10 @@ plt.ylabel("SSE (Inertia)")
 plt.title("Elbow Method - KMeans")
 plt.grid(True)
 
+# Creem directori figures si no existeix
 os.makedirs("figures", exist_ok=True)
+
+# Guardem la figura
 plt.savefig("figures/elbow_kmeans.png", dpi=150)
 plt.close()
 
