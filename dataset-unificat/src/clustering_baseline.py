@@ -30,8 +30,12 @@ from data_prep import prepare_dataset
 # -------------------------------------------------------------------
 
 print("Carregant dades...")
+
+# prepare_dataset() fa: carrega CSV -> neteja - > selecciona info/features - > escala
 info_df, X_scaled, scaler = prepare_dataset()
 
+# Mostro la forma de la matriu X_scaled
+# Files = canços, Columnes = 11 features musicals
 print("Forma de X_scaled:", X_scaled.shape)
 
 
