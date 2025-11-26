@@ -104,6 +104,7 @@ plt.xlabel("Nombre de clústers (k)")
 plt.ylabel("Silhouette Score")
 plt.title("Silhouette Score per diferents k")
 plt.grid(True)
+
 plt.savefig("figures/silhouette_kmeans.png", dpi=150)
 plt.close()
 
@@ -114,9 +115,11 @@ print("Gràfic Silhouette guardat a figures/silhouette_kmeans.png")
 # 5. Triar el millor k segons silhouette (baseline)
 # -------------------------------------------------------------------
 
+# Escollim el k amb millor silhouette score
 best_k = K_RANGE[np.argmax(silhouette_list)]
 print(f"\nMillor k segons silhouette → {best_k}")
 
+# Reentrenem KMeans amb el millor k per obtenir les etiquetes finals
 best_km = KMeans(n_clusters=best_k, random_state=42, n_init="auto")
 best_labels = best_km.fit_predict(X_scaled)
 
@@ -127,9 +130,11 @@ best_labels = best_km.fit_predict(X_scaled)
 
 print("\nCalculant PCA 2D...")
 
+# Amb PCA reduim les 11 dimensions -> 2 components pricipals per fer un gràfic 2D
 pca = PCA(n_components=2)
 X_pca = pca.fit_transform(X_scaled)
 
+# Scatterplot amb Seaborn
 plt.figure(figsize=(8, 6))
 sns.scatterplot(
     x=X_pca[:, 0], y=X_pca[:, 1],
@@ -153,6 +158,7 @@ print("PCA 2D guardat a figures/pca_kmeans.png")
 
 EXPERIMENTS_PATH = "experiments.md"
 
+# Entrada que afegirem al fitxer expersiments.md
 entry = f"""
 | ID | Data       | Descripció                          | Model / Config       | Resultat (silhouette) | Comentaris |
 |----|------------|--------------------------------------|-----------------------|------------------------|-------------|
@@ -173,4 +179,4 @@ print("\nResultats afegits a experiments.md")
 
 
 # -------------------------------------------------------------------
-print("\n✔️ Baseline complet! Gràfics generats i experiments registrats.\n")
+print("\nBaseline complet! Gràfics generats i experiments registrats.\n")
