@@ -24,11 +24,11 @@ from sklearn.preprocessing import StandardScaler #Serveix per posar totes les da
 # 1. Configuració bàsica
 # -----------------------------
 
-# Ruta al fitxer CSV original (la puc adaptar si cal)
+# Ruta al fitxer CSV 
 RAW_DATA_PATH = "SpotifyFeatures.csv"
 
 
-# Llista de columnes que vull conservar com a "info" (no com a features)
+# Llista de columnes que volem conservar com a "info" (no com a features)
 #Dades per a humans (Títol cançó, Artista). No serveixen per calcular distàncies matemàtiques.
 INFO_COLUMNS = [
     "genre",
@@ -39,7 +39,7 @@ INFO_COLUMNS = [
 
 # Llista de columnes numèriques que faran servir com a features pel model
 #Dades per a la màquina (Energy, Loudness). Són nombres amb els quals farem el clustering.
-# (aquesta llista la puc anar ajustant quan faci EDA)
+# (aquesta llista la podem anar ajustant quan faci EDA)
 FEATURE_COLUMNS = [
     "popularity",
     "acousticness",
@@ -52,7 +52,7 @@ FEATURE_COLUMNS = [
     "speechiness",
     "tempo",
     "valence",
-    # Més endavant potser afegeixo version codificada de "key", "mode", "time_signature", etc.
+    # Més endavant potser afegim version codificada de "key", "mode", "time_signature", etc.
 ]
 
 
@@ -90,7 +90,7 @@ def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     Aplica alguns passos de neteja molt bàsics.
 
     De moment:
-    - Elimino files amb valors nuls a les columnes de features.
+    - Eliminem files amb valors nuls a les columnes de features.
     
     Parameters
     ----------
@@ -102,11 +102,11 @@ def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     df_clean : pd.DataFrame
         DataFrame netejat.
     """
-    # Em quedo només amb les columnes que m'interessen (info + features)
+    # Ens quedem només amb les columnes que interessen (info + features)
     columns_to_keep = INFO_COLUMNS + FEATURE_COLUMNS
     df_clean = df[columns_to_keep].copy()
 
-    # Elimino files amb NaN a les columnes de features
+    # Eliminem files amb NaN a les columnes de features
     df_clean = df_clean.dropna(subset=FEATURE_COLUMNS)
 
     # Reset de l'índex per tenir-lo net
@@ -193,27 +193,27 @@ def prepare_dataset(path: str = RAW_DATA_PATH) -> Tuple[pd.DataFrame, np.ndarray
     scaler : StandardScaler
         Scaler entrenat sobre les dades.
     """
-    # 1. Carrego el CSV
+    # 1. Carreguem el CSV
     df_raw = load_raw_data(path)
 
     # 2. Neteja bàsica
     df_clean = basic_cleaning(df_raw)
 
-    # 3. Separo info i features
+    # 3. Separem info i features
     info_df, features_df = split_info_features(df_clean)
 
-    # 4. Escalo les features
+    # 4. Escalem les features
     X_scaled, scaler = scale_features(features_df)
 
     return info_df, X_scaled, scaler
 
 
 # -----------------------------
-# 7. Prova ràpida (si executo aquest fitxer directament)
+# 7. Prova ràpida
 # -----------------------------
 
 if __name__ == "__main__":
-    # Això només s'executa si faig: python src/data_prep.py
+    # Això només s'executa si fem: python src/data_prep.py
     info_df, X_scaled, scaler = prepare_dataset()
 
     print("Mostro les primeres files d'info:")
