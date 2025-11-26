@@ -12,12 +12,12 @@ Més endavant hi podem afegir:
 - Guardar el dataset processat en un altre CSV
 """
 
-import os
-from typing import Tuple
+import os #Serveix per interactuar amb el sistema operatiu. Aquí s'usa per comprovar si el fitxer existeix abans d'intentar obrir-lo (gestió d'errors bàsica).
+from typing import Tuple #No canvia l'execució, però serveix per indicar (pistes de tipus) què retorna una funció. Ajuda a que el codi sigui més llegible i que l'IDE t'avisi d'errors.
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler #Serveix per posar totes les dades en la mateixa escala (mitjana 0, desviació 1).
 
 
 # -----------------------------
@@ -29,6 +29,7 @@ RAW_DATA_PATH = "SpotifyFeatures.csv"
 
 
 # Llista de columnes que vull conservar com a "info" (no com a features)
+#Dades per a humans (Títol cançó, Artista). No serveixen per calcular distàncies matemàtiques.
 INFO_COLUMNS = [
     "genre",
     "artist_name",
@@ -37,6 +38,7 @@ INFO_COLUMNS = [
 ]
 
 # Llista de columnes numèriques que faran servir com a features pel model
+#Dades per a la màquina (Energy, Loudness). Són nombres amb els quals farem el clustering.
 # (aquesta llista la puc anar ajustant quan faci EDA)
 FEATURE_COLUMNS = [
     "popularity",
@@ -162,7 +164,7 @@ def scale_features(features_df: pd.DataFrame) -> Tuple[np.ndarray, StandardScale
     """
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(features_df.values)
-    return X_scaled, scaler
+    return X_scaled, scaler # Per si en el futur ens arriba una nova cançó i volem predir el seu cluster, necessitarem escalar-la exactament amb la mateixa matemàtica que les originals.
 
 
 # -----------------------------
