@@ -9,7 +9,6 @@ Script per generar el baseline de clustering:
 - PCA 2D i guarda figura
 - Escriu resultats al fitxer experiments.md
 
-Autor: Nino
 Projecte: Music Listener Clustering
 """
 
