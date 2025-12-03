@@ -104,7 +104,11 @@ def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     """
     # Ens quedem només amb les columnes que interessen (info + features)
     columns_to_keep = INFO_COLUMNS + FEATURE_COLUMNS
-    df_clean = df[columns_to_keep].copy()
+    
+    df_clean = df[columns_to_keep].copy() 
+    # Utilitzem .copy() per evitar que df_clean sigui una referencia al DF original, 
+    # sino qualsevol canvi en df_clean afectaria al DF, sino els 2 apunten a les mateixes dades.
+    # Creem una copia independent i que els canvis no alteren el DF original.
 
     # Eliminem files amb NaN a les columnes de features
     df_clean = df_clean.dropna(subset=FEATURE_COLUMNS)
