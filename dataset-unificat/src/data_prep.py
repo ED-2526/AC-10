@@ -24,8 +24,11 @@ from sklearn.preprocessing import StandardScaler #Serveix per posar totes les da
 # 1. Configuració bàsica
 # -----------------------------
 
-# Ruta al fitxer CSV 
-RAW_DATA_PATH = "SpotifyFeatures.csv"
+# Ruta al fitxer CSV (utilitzant raw string per evitar problemes d'escapament)
+RAW_DATA_PATH = r"C:\Users\emmah\OneDrive\Escritorio\UNI\TERCER\ML\AC-10\dataset-unificat\data\raw\SpotifyFeatures.csv"
+
+# Ruta per guardar el fitxer processat
+OUTPUT_PATH = r"C:\Users\emmah\OneDrive\Escritorio\UNI\TERCER\ML\AC-10\dataset-unificat\data\processed\spotify_processed.csv"  # Ruta relativa
 
 
 # Llista de columnes que volem conservar com a "info" (no com a features)
@@ -82,7 +85,7 @@ def load_raw_data(path: str = RAW_DATA_PATH) -> pd.DataFrame:
 
 
 # -----------------------------
-# 3. Neteja bàsica
+# 3. Neteja bàsica modificada
 # -----------------------------
 
 def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
@@ -91,6 +94,9 @@ def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
 
     De moment:
     - Eliminem files amb valors nuls a les columnes de features.
+    - Comprovem valors nuls per columna.
+    - Eliminem duplicats si n'hi ha.
+    - Substituïm valors nuls en columnes numèriques amb la mitjana i en columnes categòriques amb el mode.
     
     Parameters
     ----------
@@ -104,14 +110,38 @@ def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     """
     # Ens quedem només amb les columnes que interessen (info + features)
     columns_to_keep = INFO_COLUMNS + FEATURE_COLUMNS
-    
-    df_clean = df[columns_to_keep].copy() 
-    # Utilitzem .copy() per evitar que df_clean sigui una referencia al DF original, 
-    # sino qualsevol canvi en df_clean afectaria al DF, sino els 2 apunten a les mateixes dades.
-    # Creem una copia independent i que els canvis no alteren el DF original.
+    df_clean = df[columns_to_keep].copy()
 
-    # Eliminem files amb NaN a les columnes de features
-    df_clean = df_clean.dropna(subset=FEATURE_COLUMNS)
+    # Comprovar valors nuls
+    print("Missing values per column:")
+    print(df_clean.isnull().sum())  # Mostra el nombre de valors nuls per columna
+    
+    # Comprovar els tipus de dades
+    print("\nData types:")
+    print(df_clean.dtypes)  # Mostra els tipus de dades
+
+    # Eliminem duplicats si n'hi ha
+    df_clean.drop_duplicates(inplace=True)
+    print("\nEliminat duplicats, si n'hi havia.")
+
+    # Substituïm els valors nuls en columnes numèriques amb la mitjana
+    numeric_cols = df_clean.select_dtypes(include=[np.number]).columns
+    categorical_cols = df_clean.select_dtypes(exclude=[np.number]).columns
+
+    # Substituïm valors nuls en les columnes numèriques amb la mitjana !!!
+    for col in numeric_cols:
+        if df_clean[col].isnull().sum() > 0:
+            df_clean[col] = df_clean[col].fillna(df_clean[col].mode()[0])
+
+    # Substituïm valors nuls en les columnes categòriques amb el mode !!!
+    for col in categorical_cols:
+        if df_clean[col].isnull().sum() > 0:
+            df_clean[col] = df_clean[col].fillna(df_clean[col].mode()[0])
+
+
+    # Comprovar els valors nuls després de la neteja
+    print("\nAfter cleaning, missing values:")
+    print(df_clean.isnull().sum())  # Comprovar valors nuls després de la neteja
 
     # Reset de l'índex per tenir-lo net
     df_clean = df_clean.reset_index(drop=True)
@@ -176,21 +206,24 @@ def scale_features(features_df: pd.DataFrame) -> Tuple[np.ndarray, StandardScale
 
 
 # -----------------------------
-# 6. Funció "end-to-end"
+# 6. Funció "end-to-end" modificada
 # -----------------------------
 
-def prepare_dataset(path: str = RAW_DATA_PATH) -> Tuple[pd.DataFrame, np.ndarray, StandardScaler]:
+def prepare_dataset(path: str = RAW_DATA_PATH, output_path: str = OUTPUT_PATH) -> Tuple[pd.DataFrame, np.ndarray, StandardScaler]:
     """
     Pipeline complet bàsic:
     - Carregar CSV
     - Netejar
     - Separar info i features
     - Escalar features
+    - Guardar el CSV processat en un fitxer nou (si no existeix) o sobreescriure'l (si ja existeix).
 
     Parameters
     ----------
     path : str
-        Ruta al fitxer CSV.
+        Ruta al fitxer CSV original.
+    output_path : str
+        Ruta per guardar el CSV processat.
 
     Returns
     -------
@@ -213,6 +246,14 @@ def prepare_dataset(path: str = RAW_DATA_PATH) -> Tuple[pd.DataFrame, np.ndarray
     # 4. Escalem les features
     X_scaled, scaler = scale_features(features_df)
 
+    # 5. Comprovar si la carpeta de destinació existeix, i si no, crear-la
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)  # Crea la carpeta si no existeix
+
+    # 6. Guardar el CSV processat a la ruta indicada (nou fitxer CSV)
+    df_clean.to_csv(output_path, index=False)  # Guarda el CSV processat (sobre escriu si ja existeix)
+
+    print(f"El fitxer processat s'ha guardat a: {output_path}")  # Confirmació
+
     return info_df, X_scaled, scaler
 
 
@@ -229,3 +270,6 @@ if __name__ == "__main__":
 
     print("\nForma de la matriu de features escalades:")
     print(X_scaled.shape)
+
+    print(os.path.abspath(RAW_DATA_PATH))  # Per veure la ruta absoluta
+
