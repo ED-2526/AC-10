@@ -43,8 +43,8 @@ print(f"Forma de X_scaled: {X_scaled.shape}")
 K_RANGE = range(2, 13)
 
 # Aquí guardaré mètriques
-bic_list = []          # BIC per cada k
-silhouette_list = []   # Silhouette (calculat sobre una mostra)
+bic_list = []          # valors de BIC (Bayesian Information Criterion) per cada valor de k
+silhouette_list = []   # Silhouette (calculat sobre una mostra) --> Com de ben separats estan els clústers
 
 # Mostreig per al silhouette per no morir de temps
 # ------------------------------------------------
@@ -74,12 +74,12 @@ print("\nCalculant GMM per diferents k...\n")
 for k in K_RANGE:
     print(f"-> Entrenant GMM amb k={k} components...")
 
-    # Definim el model GMM
+    # Definim el model GMM --> model probabilístic que assumeix que les dades provenen de distribucions normals (gaussianes).
     gmm = GaussianMixture(
-        n_components=k,
-        covariance_type="full",
-        random_state=42,
-        n_init=1    # es podria pujar si volem més estabilitat
+        n_components=k,             # Cada component serà una distribució gaussiana que modelarà una part del conjunt de dades
+        covariance_type="full",     # Cada component gaussià pot tenir una covariància independent (formes ellíptiques diferents)
+        random_state=42,            # Per reproducibilitat
+        n_init=1                    # es podria pujar si volem més estabilitat
     )
 
     # Ajusto el GMM sobre TOTES les dades escalades
@@ -90,7 +90,7 @@ for k in K_RANGE:
     bic_list.append(bic)
 
     # Predicció de labels per a totes les mostres
-    labels_full = gmm.predict(X_scaled)
+    labels_full = gmm.predict(X_scaled)  # conté les etiquetes (clusters) assignades a cada cançó
 
     # Per al silhouette, faig servir només la mostra X_sil
     # agafo els labels corresponents a sample_idx
