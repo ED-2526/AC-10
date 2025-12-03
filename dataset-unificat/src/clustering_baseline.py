@@ -32,9 +32,13 @@ print("Carregant dades...")
 
 # prepare_dataset() fa: carrega CSV -> neteja - > selecciona info/features - > escala
 info_df, X_scaled, scaler = prepare_dataset()
+# info_df = DF de les dades informatives, sense escalar.
+# X_scaled = matriu de característiques escalades, transformades amb StandarScaler, entre 0 y 1.
+# scaler = objecte StandarScaler, aprèn la mitja i desviació, es guarda per poder reutilitzar-ho a l'hora d'escalar noves dades o prediccions.
+
 
 # Mostro la forma de la matriu X_scaled
-# Files = canços, Columnes = 11 features musicals
+# Files = cançons, Columnes = 11 features musicals
 print("Forma de X_scaled:", X_scaled.shape)
 
 
@@ -47,7 +51,12 @@ K_RANGE = range(2, 13)      # k = 2..12
 
 # Aquí guardem els resultats
 sse_list = []   # Sum of Squared Errors per a elbow
+# Mesura la distància entre punts de dades i els centroids, determina el nº òptim de clusters
+# buscant on la disminució de SSE ja no és tan pronunciada
+
 silhouette_list = [] # Silhouette scores (qualitat dels clustering)
+# Mesura la qualitat del clustering, valor alt = dades ben agrupades al cluster, i clusters ben separats
+# avalua la consistència del clustering
 
 print("\nCalculant elbow i silhouette per diferents k...\n")
 
