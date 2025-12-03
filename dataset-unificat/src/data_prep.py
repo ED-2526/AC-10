@@ -167,7 +167,11 @@ def scale_features(features_df: pd.DataFrame) -> Tuple[np.ndarray, StandardScale
         Objecte scaler entrenat (per poder reutilitzar-lo més endavant).
     """
     scaler = StandardScaler()
+    
     X_scaled = scaler.fit_transform(features_df.values)
+    # .fit_transform() ajusta l'scaler a les dades calculant la mitja i desviació dels features
+    # transforma les dades aplicant la normalització dels valors calculats.
+    
     return X_scaled, scaler # Per si en el futur ens arriba una nova cançó i volem predir el seu cluster, necessitarem escalar-la exactament amb la mateixa matemàtica que les originals.
 
 
