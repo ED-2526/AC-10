@@ -25,10 +25,12 @@ from sklearn.preprocessing import StandardScaler #Serveix per posar totes les da
 # -----------------------------
 
 # Ruta al fitxer CSV (utilitzant raw string per evitar problemes d'escapament)
-RAW_DATA_PATH = r"C:\Users\emmah\OneDrive\Escritorio\UNI\TERCER\ML\AC-10\dataset-unificat\data\raw\SpotifyFeatures.csv"
+#RAW_DATA_PATH = r"C:\Users\emmah\OneDrive\Escritorio\UNI\TERCER\ML\AC-10\dataset-unificat\data\raw\SpotifyFeatures.csv"
+RAW_DATA_PATH = os.path.join("dataset-unificat", "data", "raw", "SpotifyFeatures.csv")
 
 # Ruta per guardar el fitxer processat
-OUTPUT_PATH = r"C:\Users\emmah\OneDrive\Escritorio\UNI\TERCER\ML\AC-10\dataset-unificat\data\processed\spotify_processed.csv"  # Ruta relativa
+#OUTPUT_PATH = r"C:\Users\emmah\OneDrive\Escritorio\UNI\TERCER\ML\AC-10\dataset-unificat\data\processed\spotify_processed.csv"  # Ruta relativa
+OUTPUT_PATH = os.path.join("dataset-unificat", "data", "processed", "spotify_processed.csv")
 
 
 # Llista de columnes que volem conservar com a "info" (no com a features)
