@@ -1,0 +1,62 @@
+EXPLICACIÓ DELS RESULTATS DELS TRES PLOTS
+========================================
+
+Aquest document explica de manera detallada els resultats dels tres gràfics generats amb el model **Gaussian Mixture Models (GMM)** i els seus resultats per a diferents valors de `k`.
+
+----------------------------------------
+1) **GMM - BIC PER DIFERENTS K**
+----------------------------------------
+
+Aquest gràfic mostra l’evolució de la **BIC (Bayesian Information Criterion)** per cada valor de `k` entre 2 i 12.
+
+**Interpretació del gràfic:**
+- A mesura que augmenta el valor de `k`, el BIC disminueix, indicant que el model millora a mesura que afegim més components.
+- El **BIC més baix** (el millor model segons aquest criteri) es troba per a **k=2**. Aquesta és l'elecció més òptima ja que el BIC es manté baix mentre que afegir més components no millora significativament el model.
+- Els valors de BIC per a k més grans es mantinguin relativament estables, suggerint que **k=2** és el millor valor de `k`.
+
+**Conclusió:**  
+El millor valor de `k` segons el BIC és **k=2**.
+
+----------------------------------------
+2) **GMM - SILHOUETTE SCORE PER DIFERENTS K**
+----------------------------------------
+
+Aquest gràfic mostra l’evolució del **Silhouette Score** per diferents valors de `k`, calculat sobre una mostra de 10.000 punts.
+
+**Interpretació del gràfic:**
+- El **Silhouette Score** mesura la qualitat del clustering, indicant com de ben separats estan els clústers. El valor de silhouette oscil·la entre -1 i 1, on 1 indica una bona separació.
+- Per a **k=2**, el **Silhouette Score** és de **0.1193**, que és el millor valor obtingut per a tots els valors de `k`. Això indica una bona separació entre els clústers.
+- Els valors de silhouette per a `k` més alts són baixos i fins i tot negatius en alguns casos, suggerint que els clústers es tornen més solapats o menys definits a mesura que afegim més components.
+- Això confirma que **k=2** és el millor nombre de clústers pel model GMM.
+
+**Conclusió:**  
+El millor valor de `k` segons el **Silhouette Score** és **k=2**.
+
+----------------------------------------
+3) **PCA 2D - GMM (k=2)**
+----------------------------------------
+
+Aquest gràfic mostra una **visualització en 2D** dels clústers utilitzant **PCA** per reduir les dades a 2 dimensions.
+
+**Interpretació del gràfic:**
+- Els punts en el gràfic estan colorejats segons el clúster assignat pel model GMM. 
+- Els **clústers estan ben separats** visualment, amb dos grans grups:
+  - **Cluster 0** (blau) ocupa la part superior esquerra.
+  - **Cluster 1** (taronja) ocupa la part inferior dreta.
+- Aquesta separació visual valida que **k=2** és una bona elecció, ja que els clústers són fàcilment identificables i separats en el gràfic 2D.
+
+**Conclusió:**  
+**k=2** genera clústers **ben separats** i interpretables visualment, el que valida aquesta elecció.
+
+----------------------------------------
+
+CONCLUSIÓ GLOBAL
+----------------------------------------
+
+En resum, després d'analitzar els tres gràfics:
+
+1. El **BIC** indica que **k=2** és el millor model, ja que és el que produeix el BIC més baix.
+2. El **Silhouette Score** confirma aquesta elecció, ja que **k=2** és on el clustering és més coherent.
+3. Finalment, la visualització amb **PCA** mostra una **bona separació** entre els clústers per a **k=2**.
+
+Per tant, **k=2** és l'elecció òptima per aquest conjunt de dades.

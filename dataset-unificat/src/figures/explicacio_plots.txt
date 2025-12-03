@@ -1,0 +1,76 @@
+
+EXPLICACIÓ DELS RESULTATS DELS TRES PLOTS
+========================================
+
+Aquest document explica de forma clara i detallada què signifiquen els tres gràfics generats fins ara:
+1. Elbow Method (K-Means)
+2. PCA 2D (visualització de clústers)
+3. Silhouette Score per diferents k
+
+----------------------------------------
+1) ELBOW METHOD - KMEANS
+----------------------------------------
+
+Aquest gràfic mostra la SSE (Sum of Squared Errors) o 'Inertia' per cada valor de k entre 2 i 12.
+La SSE sempre baixa quan augmentem k, però busquem el punt on la millora deixa de ser significativa.
+
+Interpretació del teu gràfic:
+
+- Entre k=2 i k=3 hi ha una reducció molt forta de SSE.
+- Entre k=3 i k=4 encara hi ha una baixada important.
+- A partir de k=4 i k=5 la corba es torna més suau.
+- Entre k=6 i k=12 les millores són molt petites.
+
+Això indica que:
+✔ El "colze" més clar està entre **k = 3 i k = 4**.  
+✔ Per tant, un nombre raonable de clústers seria **3 o 4**.
+
+----------------------------------------
+2) PCA 2D - KMEANS (k=3)
+----------------------------------------
+
+Aquest gràfic mostra les dades reduïdes a 2 dimensions amb PCA, acolorides segons el clúster obtingut amb K-Means.
+
+Interpretació del teu PCA:
+
+- Els tres clústers estan **ben separats visualment**.
+- El clúster taronja (1) ocupa la part superior del gràfic.
+- El clúster verd (2) queda a la banda inferior esquerra.
+- El clúster blau (0) ocupa tota la part dreta del gràfic.
+
+En conjunt:
+✔ K=3 genera clústers visibles i amb separació clara.  
+✔ Aquest resultat reforça que k=3 és un bon valor.
+
+----------------------------------------
+3) SILHOUETTE SCORE PER DIFERENTS K
+----------------------------------------
+
+El silhouette mesura la qualitat del clustering (entre -1 i 1).
+Com més alt, millor.
+
+En el teu gràfic:
+
+- El **millor silhouette és k=3** (~0.34).
+- k=2 també té un bon valor (~0.31), però una mica inferior.
+- A partir de k=4, el silhouette **cau en picat** (~0.16).
+- De k=5 a k=12 els valors són baixos i semblants (~0.14 - 0.16).
+
+Conclusió del silhouette:
+✔ k=3 és el millor valor amb diferència.  
+✔ Models amb >3 clústers no aporten cap millora.
+
+----------------------------------------
+CONCLUSIÓ GLOBAL DELS TRES PLOTS
+----------------------------------------
+
+Sumant tots els resultats:
+
+- L'Elbow suggereix que k=3 o k=4 són valors raonables.
+- El Silhouette indica clarament que k=3 és el millor.
+- El PCA mostra que els clústers de k=3 estan ben separats visualment.
+
+ **Conclusió final: el valor òptim de k per al baseline és k = 3.**
+
+----------------------------------------
+Final del document.
