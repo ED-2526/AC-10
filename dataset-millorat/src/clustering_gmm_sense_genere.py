@@ -5,6 +5,7 @@ import seaborn as sns
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE  # <-- Afegit per t-SNE
 from sklearn.preprocessing import StandardScaler
 
 # Importo el pipeline de preprocessament
@@ -19,7 +20,7 @@ import pandas as pd
 print("Carregant dades...")
 
 # Carregar el dataset netejat
-df_clean = pd.read_csv("dataset-millorat/data/processat/06_dataset_prepared_for_clustering.csv")
+df_clean = pd.read_csv("dataset-millorat/data/processat2/06_dataset_prepared_for_clustering.csv")
 
 # preparar_clustering() fa: carrega CSV -> neteja -> selecciona info/features -> escala
 info_df, X_scaled, scaler = preparar_clustering(df_clean)  # Passant df_clean a preparar_clustering()
@@ -74,7 +75,7 @@ silhouette_list = []   # Silhouette (calculat sobre una mostra) --> Com de ben s
 # ------------------------------------------------
 # Si tenim moltes mostres (230k), calcular silhouette sobre totes és molt costós.
 # Per això agafo una mostra aleatòria de max 10.000 punts.
-max_sil_samples = 10000
+max_sil_samples = 30000
 
 n_samples, n_features = X_scaled.shape
 if n_samples > max_sil_samples:
@@ -102,7 +103,7 @@ for k in K_RANGE:
         n_components=k,             
         covariance_type="full",     
         random_state=42,            
-        n_init=1                    
+        n_init=10                    
     )
 
     gmm.fit(X_scaled)
@@ -152,25 +153,25 @@ plt.close()
 print("Gràfic Silhouette guardat a figures/gmm_silhouette.png")
 
 # -------------------------------------------------------------------
-# 6. Triar el millor k (segons silhouette)
+# 6. Triar el millor k (segons BIC)
 # -------------------------------------------------------------------
 
-best_k_idx = np.argmax(silhouette_list)
+# Per BIC, busquem el valor més baix (minimitzem BIC)
+best_k_idx = np.argmin(bic_list)  # Canviat de argmax(silhouette_list) a argmin(bic_list)
 best_k = list(K_RANGE)[best_k_idx]
-best_sil = silhouette_list[best_k_idx]
+best_bic = bic_list[best_k_idx]
 
-print(f"\nMillor k segons silhouette (GMM) → {best_k}  (silhouette={best_sil:.4f})")
+print(f"\nMillor k segons BIC (GMM) → {best_k}  (BIC={best_bic:.2f})")
 
 # Re-entreno el GMM amb best_k per poder fer PCA i analitzar
 best_gmm = GaussianMixture(
     n_components=best_k,
     covariance_type="full",
     random_state=42,
-    n_init=1
+    n_init=10
 )
 best_gmm.fit(X_scaled)
 best_labels_full = best_gmm.predict(X_scaled)
-
 
 # -------------------------------------------------------------------
 # 7. PCA 2D per visualitzar els clústers de GMM
@@ -191,7 +192,7 @@ sns.scatterplot(
     s=10,
     alpha=0.7
 )
-plt.title(f"PCA 2D - GMM (k={best_k})")
+plt.title(f"PCA 2D - GMM (k={best_k}) sense gènere")
 plt.xlabel("PC1")
 plt.ylabel("PC2")
 plt.legend(title="Cluster", bbox_to_anchor=(1.05, 1), loc="upper left")
@@ -308,14 +309,151 @@ for idx, row in top_5.iterrows():
     print(f"  - Contribució a PC2: {abs(row['PC2_loading']):.4f} ({pc2_direction})")
     print(f"  - Puntuació combinada: {row['combined_score']:.4f}")
 
-# Guardar els resultats en un fitxer CSV
-os.makedirs("results", exist_ok=True)
-csv_path = f"results/pca_feature_importance_k{best_k}.csv"
-combined_loadings.to_csv(csv_path, index=False)
-print(f"\nResultats de l'anàlisi de característiques guardats a: {csv_path}")
+# -------------------------------------------------------------------
+# 8. t-SNE 2D per visualització alternativa
+# -------------------------------------------------------------------
+
+print("\n" + "="*80)
+print("CALCULANT t-SNE PER A VISUALITZACIÓ (això pot trigar uns minuts...)")
+print("="*80)
+
+# t-SNE és molt lent per a grans datasets, així que utilitzem una mostra
+tsne_sample_size = 10000  # Mostra per t-SNE (més petit que per silhouette)
+
+if n_samples > tsne_sample_size:
+    print(f"Mostrejant {tsne_sample_size} punts per a t-SNE (t-senar)...")
+    rng = np.random.default_rng(seed=42)
+    tsne_idx = rng.choice(n_samples, size=tsne_sample_size, replace=False)
+    X_tsne_sample = X_scaled[tsne_idx]
+    labels_tsne_sample = best_labels_full[tsne_idx]
+    use_tsne_sample = True
+else:
+    X_tsne_sample = X_scaled
+    labels_tsne_sample = best_labels_full
+    use_tsne_sample = False
+
+# Configuració de t-SNE optimitzada per a grans datasets
+print("Aplicant t-SNE (això pot trigar uns minuts...)")
+tsne = TSNE(
+    n_components=2,
+    perplexity=30,           # Bo per a 10k mostres
+    learning_rate='auto',    # Automàtic basat en la mida de mostra
+    n_iter=1000,
+    random_state=42,
+    verbose=1,               # Mostra progrés
+    n_jobs=-1                # Utilitza tots els cores
+)
+
+X_tsne = tsne.fit_transform(X_tsne_sample)
+
+print(f"\nt-SNE complet! KL divergence: {tsne.kl_divergence_:.4f}")
+
+# Crear figura amb PCA i t-SNE costat a costat
+fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+
+# Gràfic PCA (esquerra)
+axes[0].scatter(
+    X_pca[:, 0], 
+    X_pca[:, 1], 
+    c=best_labels_full, 
+    cmap='tab10', 
+    s=10, 
+    alpha=0.7
+)
+axes[0].set_title(f'PCA 2D - GMM (k={best_k})')
+axes[0].set_xlabel('PC1')
+axes[0].set_ylabel('PC2')
+axes[0].grid(True, alpha=0.3)
+
+# Gràfic t-SNE (dreta)
+scatter = axes[1].scatter(
+    X_tsne[:, 0], 
+    X_tsne[:, 1], 
+    c=labels_tsne_sample, 
+    cmap='tab10', 
+    s=10, 
+    alpha=0.7
+)
+axes[1].set_title(f't-SNE 2D - GMM (k={best_k})' + 
+                  (f' (mostra: {tsne_sample_size})' if use_tsne_sample else ''))
+axes[1].set_xlabel('t-SNE 1')
+axes[1].set_ylabel('t-SNE 2')
+axes[1].grid(True, alpha=0.3)
+
+# Afegir barra de colors
+plt.colorbar(scatter, ax=axes[1], label='Cluster')
+
+plt.tight_layout()
+plt.savefig(f"figures/gmm_pca_tsne_k{best_k}.png", dpi=150, bbox_inches='tight')
+plt.close()
+
+print(f"\nComparació PCA-t-SNE guardada a figures/gmm_pca_tsne_k{best_k}.png")
 
 # -------------------------------------------------------------------
-# 8. Escriure resultats al fitxer experiments.md
+# 9. t-SNE detallat amb menys mostres per a anàlisi
+# -------------------------------------------------------------------
+
+# Un t-SNE més detallat amb menys punts per veure millor l'estructura
+print("\n" + "="*80)
+print("CALCULANT t-SNE DETALLAT PER A ANÀLISI (5.000 punts)")
+print("="*80)
+
+tsne_detail_size = 5000
+rng = np.random.default_rng(seed=123)
+detail_idx = rng.choice(n_samples, size=tsne_detail_size, replace=False)
+X_tsne_detail = X_scaled[detail_idx]
+labels_tsne_detail = best_labels_full[detail_idx]
+
+# t-SNE amb hiperparàmetres per a visualització detallada
+tsne_detail = TSNE(
+    n_components=2,
+    perplexity=40,           # Una mica més alt per a visualització
+    learning_rate=200,       # Fix per a millor visualització
+    n_iter=1500,            # Més iteracions
+    random_state=42,
+    init='random',          # Inicialització aleatòria per a millors resultats
+    verbose=1,
+    n_jobs=-1
+)
+
+X_tsne_detailed = tsne_detail.fit_transform(X_tsne_detail)
+
+# Gràfic t-SNE detallat
+plt.figure(figsize=(10, 8))
+scatter = plt.scatter(
+    X_tsne_detailed[:, 0], 
+    X_tsne_detailed[:, 1], 
+    c=labels_tsne_detail, 
+    cmap='tab20',           # Més colors per a més clústers
+    s=15, 
+    alpha=0.8,
+    edgecolors='w',
+    linewidth=0.3
+)
+plt.title(f't-SNE Detallat - GMM amb k={best_k} clusters\n(5.000 punts mostrejats)')
+plt.xlabel('t-SNE Component 1')
+plt.ylabel('t-SNE Component 2')
+plt.grid(True, alpha=0.2)
+plt.colorbar(scatter, label='Cluster')
+plt.tight_layout()
+plt.savefig(f"figures/gmm_tsne_detailed_k{best_k}.png", dpi=150, bbox_inches='tight')
+plt.close()
+
+print(f"t-SNE detallat guardat a figures/gmm_tsne_detailed_k{best_k}.png")
+
+# Anàlisi de la distribució de clústers en t-SNE
+print(f"\n{'='*80}")
+print("ANÀLISI DE DISTRIBUCIÓ DE CLÚSTERS EN t-SNE")
+print("="*80)
+
+cluster_counts = np.bincount(labels_tsne_detail)
+for cluster_id in range(best_k):
+    count = cluster_counts[cluster_id]
+    percentage = (count / tsne_detail_size) * 100
+    print(f"Cluster {cluster_id}: {count} punts ({percentage:.1f}%)")
+
+# -------------------------------------------------------------------
+# 10. Escriure resultats al fitxer experiments.md amb info de t-SNE
 # -------------------------------------------------------------------
 
 EXPERIMENTS_PATH = "experiments.md"
@@ -324,12 +462,12 @@ EXPERIMENTS_PATH = "experiments.md"
 top_features_summary = ", ".join([row['feature'] for idx, row in combined_loadings.head(5).iterrows()])
 
 entry = f"""
-| ID  | Data       | Descripció                               | Model / Config                     | Resultat (silhouette mostra) | Característiques rellevants                        | Comentaris                         |
+| ID  | Data       | Descripció                               | Model / Config                     | Resultat (BIC)               | Característiques rellevants                        | Comentaris                         |
 |-----|------------|-------------------------------------------|------------------------------------|------------------------------|---------------------------------------------------|------------------------------------|
-| G1  | baseline   | GMM baseline, k={best_k}                  | GMM (covariance_type='full')       | {best_sil:.4f}               | {top_features_summary}                            | Millor k segons silhouette (mostra) |
+| G1  | baseline   | GMM baseline, k={best_k}                  | GMM (covariance_type='full')       | {best_bic:.2f}               | {top_features_summary}                            | Millor k segons BIC + t-SNE inclòs |
 """
 
-# Si experiments.md ja existeix, l’afegeixo al final
+# Si experiments.md ja existeix, l'afegeixo al final
 if os.path.exists(EXPERIMENTS_PATH):
     with open(EXPERIMENTS_PATH, "a", encoding="utf-8") as f:
         f.write("\n" + entry)
@@ -339,7 +477,16 @@ else:
         f.write("# Registre d'experiments\n\n")
         f.write(entry)
 
-print("\nResultats de GMM afegits a experiments.md")
+print("\nResultats de GMM amb t-SNE afegits a experiments.md")
 
 # -------------------------------------------------------------------
-print("\nGMM complet! Gràfics generats i experiment registrat.\n")
+print("\n" + "="*80)
+print("ANÀLISI GMM COMPLETAT!")
+print(f"Millor k: {best_k}")
+print(f"Gràfics generats:")
+print(f"  - figures/gmm_bic.png")
+print(f"  - figures/gmm_silhouette.png")
+print(f"  - figures/gmm_pca_k{best_k}.png")
+print(f"  - figures/gmm_pca_tsne_k{best_k}.png")
+print(f"  - figures/gmm_tsne_detailed_k{best_k}.png")
+print("="*80)
