@@ -51,9 +51,44 @@ selected_columns = [
 # Filtrar les dades per incloure només les columnes seleccionades
 df_clean = df_clean[selected_columns]
 
+# ==============================================================================
+# AFEGIR AIXÒ AQUÍ (ABANS D'ESCALAR)
+# ==============================================================================
+print("\n" + "="*50)
+print("1. VARIÀNCIA ABANS D'ESCALAR (Dades reals)")
+print("="*50)
+# Això mostra quines característiques dominarien si no escaléssim (ex: duration_ms)
+raw_vars = df_clean.var()
+raw_pcts = (raw_vars / raw_vars.sum()) * 100
+print(raw_pcts.sort_values(ascending=False).head(10))
+print("Note: Si una variable té el 99%, el model ignoraria la resta.\n")
+# ==============================================================================
+
 # Escalar les dades
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(df_clean)
+
+# ==============================================================================
+# AFEGIR AIXÒ AQUÍ (DESPRÉS D'ESCALAR)
+# ==============================================================================
+print("\n" + "="*50)
+print("2. VARIÀNCIA DESPRÉS D'ESCALAR (Dades normalitzades)")
+print("="*50)
+# Ara comprovem que totes pesen igual
+scaled_vars = np.var(X_scaled, axis=0)
+scaled_pcts = (scaled_vars / np.sum(scaled_vars)) * 100
+
+# Creem un DataFrame ràpid per visualitzar-ho amb els noms
+df_vars_scaled = pd.DataFrame({
+    'Feature': selected_columns[:X_scaled.shape[1]], # Assegurem que coincideixin dimensions
+    'Variance_%': scaled_pcts
+}).sort_values('Variance_%', ascending=False)
+
+print(df_vars_scaled.head(5))
+print(f"\nVariància mitjana per feature: {scaled_pcts.mean():.4f}%")
+print("Ara totes les variables tenen la mateixa importància pel clustering.")
+print("="*50 + "\n")
+# ==============================================================================
 
 # Verificar que les columnes coincideixen amb la matriu escalada
 if len(selected_columns) != X_scaled.shape[1]:
