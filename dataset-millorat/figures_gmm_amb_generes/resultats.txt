@@ -1,0 +1,193 @@
+Carregant dades...
+
+✔ Guardat 06_dataset_prepared_for_clustering.csv — Shape = (176773, 39)
+
+Dataset preparat per clustering:
+ - Files: 176773
+ - Features numèriques escalades: 38
+ - Columnes de gènere multilabel: 27
+Forma de X_scaled: (176773, 38)
+
+Nombre de característiques: 38
+Primeres 5 característiques: ['popularity', 'acousticness', 'danceability', 'duration_ms', 'energy']
+Últimes 5 característiques: ['Rock', 'Ska', 'Soul', 'Soundtrack', 'World']
+Faré servir una mostra de 10000 punts per al silhouette.
+
+Calculant GMM per diferents k...
+
+-> Entrenant GMM amb k=2 components...
+   BIC=-7680826.29  Silhouette(sample)=0.0853
+-> Entrenant GMM amb k=3 components...
+   BIC=-13199679.12  Silhouette(sample)=0.0745
+-> Entrenant GMM amb k=4 components...
+   BIC=-18792125.85  Silhouette(sample)=0.0894
+-> Entrenant GMM amb k=5 components...
+   BIC=-21899859.12  Silhouette(sample)=0.1019
+-> Entrenant GMM amb k=6 components...
+   BIC=-22558192.84  Silhouette(sample)=0.1327
+-> Entrenant GMM amb k=7 components...
+   BIC=-24897783.15  Silhouette(sample)=0.1441
+-> Entrenant GMM amb k=8 components...
+   BIC=-28261437.80  Silhouette(sample)=0.1543
+-> Entrenant GMM amb k=9 components...
+   BIC=-28987295.48  Silhouette(sample)=0.1836
+-> Entrenant GMM amb k=10 components...
+   BIC=-27758536.71  Silhouette(sample)=0.2060
+-> Entrenant GMM amb k=11 components...
+   BIC=-29173807.05  Silhouette(sample)=0.2262
+-> Entrenant GMM amb k=12 components...
+   BIC=-30879262.22  Silhouette(sample)=0.2331
+
+Gràfic BIC guardat a figures/gmm_bic.png
+Gràfic Silhouette guardat a figures/gmm_silhouette.png
+
+Millor k segons silhouette (GMM) → 12  (silhouette=0.2331)
+
+Calculant PCA 2D per a GMM...
+PCA 2D guardat a figures/gmm_pca_k12.png
+
+================================================================================
+ANÀLISI DE CARACTERÍSTIQUES RELLEVANTS EN EL PCA
+================================================================================
+
+Variància explicada per cada component:
+  PC1: 0.1208 (12.08%)
+  PC2: 0.0738 (7.38%)
+
+Variància total explicada: 0.1946 (19.46%)
+
+============================================================
+COMPONENT PRINCIPAL 1 (explica 12.08% de la variància)
+============================================================
+
+Top 10 característiques més rellevants per a PC1:
+--------------------------------------------------------------------------------
+  loudness: +0.4012
+  energy: +0.3743
+  acousticness: -0.3645
+  danceability: +0.3076
+  instrumentalness: -0.2772
+  valence: +0.2724
+  popularity: +0.2407
+  Classical: -0.2037
+  Soundtrack: -0.1977
+  Opera: -0.1819
+
+Bottom 5 característiques menys rellevants per a PC1:
+--------------------------------------------------------------------------------
+  Folk: +0.0191
+  speechiness: +0.0175
+  liveness: +0.0142
+  A Capella: -0.0127
+  Anime: -0.0054
+
+============================================================
+COMPONENT PRINCIPAL 2 (explica 7.38% de la variància)
+============================================================
+
+Top 10 característiques més rellevants per a PC2:
+--------------------------------------------------------------------------------
+  speechiness: +0.4221
+  Comedy: +0.4162
+  liveness: +0.3572
+  popularity: -0.3525
+  Children's Music: +0.2192
+  Children's Music: +0.2192
+  Pop: -0.1710
+  valence: +0.1629
+  instrumentalness: -0.1622
+  Indie: -0.1529
+
+Bottom 5 característiques menys rellevants per a PC2:
+--------------------------------------------------------------------------------
+  Electronic: -0.0136
+  Anime: +0.0116
+  A Capella: +0.0034
+  Opera: -0.0029
+  Blues: +0.0020
+
+================================================================================
+ANÀLISI COMBINADA PER ALS DOS COMPONENTS PRINCIPALS
+================================================================================
+
+Top 15 característiques més rellevants per a la formació de clusters (combinat):
+------------------------------------------------------------------------------------------------------------------------
+Característica                           | PC1 Loading  | PC2 Loading  | Score Combi |
+------------------------------------------------------------------------------------------------------------------------
+popularity                               | +0.2407      | -0.3525      | 0.0551     |
+energy                                   | +0.3743      | +0.1255      | 0.0545     |
+loudness                                 | +0.4012      | +0.0467      | 0.0519     |
+acousticness                             | -0.3645      | +0.0880      | 0.0505     |
+danceability                             | +0.3076      | +0.1261      | 0.0465     |
+instrumentalness                         | -0.2772      | -0.1622      | 0.0455     |
+valence                                  | +0.2724      | +0.1629      | 0.0449     |
+Comedy                                   | -0.0326      | +0.4162      | 0.0347     |
+Soundtrack                               | -0.1977      | -0.1308      | 0.0335     |
+speechiness                              | +0.0175      | +0.4221      | 0.0333     |
+Classical                                | -0.2037      | -0.0943      | 0.0316     |
+Pop                                      | +0.1297      | -0.1710      | 0.0283     |
+liveness                                 | +0.0142      | +0.3572      | 0.0281     |
+Rap                                      | +0.1348      | -0.1204      | 0.0252     |
+Dance                                    | +0.1152      | -0.1240      | 0.0231     |
+
+================================================================================
+ANÀLISI DETALLADA DE LES 5 CARACTERÍSTIQUES MÉS IMPORTANTS
+================================================================================
+
+popularity:
+  - Contribució a PC1: 0.2407 (positiva)
+  - Contribució a PC2: 0.3525 (negativa)
+  - Puntuació combinada: 0.0551
+
+energy:
+  - Contribució a PC1: 0.3743 (positiva)
+  - Contribució a PC2: 0.1255 (positiva)
+  - Puntuació combinada: 0.0545
+
+loudness:
+  - Contribució a PC1: 0.4012 (positiva)
+  - Contribució a PC2: 0.0467 (positiva)
+  - Puntuació combinada: 0.0519
+
+acousticness:
+  - Contribució a PC1: 0.3645 (negativa)
+  - Contribució a PC2: 0.0880 (positiva)
+  - Puntuació combinada: 0.0505
+
+danceability:
+  - Contribució a PC1: 0.3076 (positiva)
+  - Contribució a PC2: 0.1261 (positiva)
+  - Puntuació combinada: 0.0465
+
+================================================================================
+INTERPRETACIÓ DE LES CARACTERÍSTIQUES MÉS IMPORTANTS PER A CLUSTERS
+================================================================================
+
+Les característiques que més influeixen en la formació de clústers són:
+
+1. popularity:
+   - Principalment influeix en la separació vertical (PC2)
+   - Valors alts d'aquesta característica mouen els punts cap avall
+
+2. energy:
+   - Principalment influeix en la separació horitzontal (PC1)
+   - Valors alts d'aquesta característica mouen els punts cap a la dreta
+
+3. loudness:
+   - Principalment influeix en la separació horitzontal (PC1)
+   - Valors alts d'aquesta característica mouen els punts cap a la dreta
+
+4. acousticness:
+   - Principalment influeix en la separació horitzontal (PC1)
+   - Valors alts d'aquesta característica mouen els punts cap a l'esquerra
+
+5. danceability:
+   - Principalment influeix en la separació horitzontal (PC1)
+   - Valors alts d'aquesta característica mouen els punts cap a la dreta
+
+Resultats de l'anàlisi de característiques guardats a: results/pca_feature_importance_k12.csv
+
+Resultats de GMM afegits a experiments.md
+
+GMM complet! Gràfics generats i experiment registrat.
+
